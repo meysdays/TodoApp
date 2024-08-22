@@ -40,6 +40,11 @@ const updateTask = (index) => {
 
 const bully = ref('')
 
+const isChecked = ((index) =>{
+  todo.value[index].status
+  
+})
+
 </script>
 
 <template>
@@ -68,7 +73,7 @@ const bully = ref('')
 
         <input type="checkbox" v-model="todo[index].status" />
 
-        <label for="name">{{ task.content }}</label>
+        <label for="name" :class="{strike: todo[index].status}">{{ task.content }}</label>
         <div class="but">
           <div class="custom-button" @click="updateTask(index)">edit</div>
           <!-- <button @click="updateTask(index)">edit</button> -->
@@ -95,7 +100,7 @@ body {
 }
 
 .strike {
-  color: green;
+  text-decoration: line-through;
 }
 
 .container {
@@ -163,6 +168,7 @@ body {
   padding: 0.5rem 0.5rem;
   cursor: pointer;
   text-align: center;
+  
   
 }
 
