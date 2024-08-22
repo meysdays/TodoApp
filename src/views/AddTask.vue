@@ -41,7 +41,7 @@ const addTodo = () =>{
         </div>
         <div class="add">
           <label for="title" :style="{fontSize:'2em'}">Title: </label>
-          <input type="text" name="title" placeholder="e.g buy books" v-model="newTask">
+          <input type="text" name="title" placeholder="e.g buy books" v-model="newTask" @keyup.enter="addTodo()">
         </div>
         <button @click="addTodo()">ADD</button>
       </div>
