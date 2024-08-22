@@ -37,7 +37,7 @@ const saveEdit = () => {
         </div>
         <div class="add">
           <label for="title" :style="{fontSize:'2em'}">Title: </label>
-          <input type="text" name="title" placeholder="e.g buy books" v-model="newTask" >
+          <input type="text" name="title" placeholder="e.g buy books" v-model="newTask" @keyup.enter="saveEdit()">
         </div>
         <button @click="saveEdit()">SAVE</button>
       </div>
