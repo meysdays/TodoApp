@@ -1,4 +1,4 @@
-<script setup>
+<script lang="ts" setup>
 import { defineProps, watch } from 'vue';
 import ModalTodo from '@/components/ModalTodo.vue';
 

@@ -1,4 +1,4 @@
-<script setup>
+<script lang="ts" setup>
 import { defineProps, ref } from 'vue';
 // const props = defineProps(['TogglePopup']);
 // const props = defineProps({

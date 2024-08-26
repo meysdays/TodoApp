@@ -1,16 +1,17 @@
-<script setup>
+<script lang="ts"setup>
 import { ref, watch } from 'vue';
 import ModalTodo from '@/components/ModalTodo.vue';
 
-
-const newTask = ref('')
 
 const props = defineProps({
   togglePopup: Function,
   value:Array,
   task: Object,
-  editIndex: Number
+  editIndex: Number,
+  con: String
 });
+const newTask = ref(props.con)
+
 
 watch(props.value, (newVal) => {
 	    localStorage.setItem('todo', JSON.stringify(newVal))
@@ -37,7 +38,7 @@ const saveEdit = () => {
         </div>
         <div class="add">
           <label for="title" :style="{fontSize:'2em'}">Title: </label>
-          <input type="text" name="title" placeholder="e.g buy books" v-model="newTask" @keyup.enter="saveEdit()">
+          <input type="text" name="title" placeholder="e.g buy books" v-model="newTask" @keyup.enter="saveEdit()" > 
         </div>
         <button @click="saveEdit()">SAVE</button>
       </div>

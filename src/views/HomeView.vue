@@ -1,49 +1,98 @@
-<script setup>
+<script lang="ts" setup>
 import AddTask from './AddTask.vue';
 import EditTask from './EditTask.vue';
 import DeleteTask from './DeleteTask.vue';
+import type { Task } from '@/Interfaces/Task';
 
-import { onMounted, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
+import { useTodo } from '@/Composables/useTodo';
+import type { Ref } from 'vue';
+import type { PopupTrigger } from '@/Interfaces/PopupTrigger';
 
-const popupTrigger = ref({
+const todo = ref<Task[]>([])
+
+const {
+  // todo,
+  editableTask,
+  addTask,
+  editTask,
+  deleteTask,
+  toggleTaskStatus,
+  saveTask,
+  filteredTasks
+} = useTodo(todo);
+
+watch(
+    todo,
+    (newVal) => {
+      localStorage.setItem('todo', JSON.stringify(newVal))
+    },
+    {
+      deep: true
+    }
+  )
+  onMounted(() => {
+    const storedTasks = localStorage.getItem('todo')
+    todo.value = storedTasks ? JSON.parse(storedTasks) : []
+    console.log(todo.value);
+    
+  })
+
+const popupTrigger: Ref<PopupTrigger> = ref({
   addButtonTrigger: false,
   editButtonTrigger: false,
   deleteButtonTrigger: false
 });
 
-const TogglePopup = (trigger) => {
+const TogglePopup = (trigger: keyof PopupTrigger) => {
   popupTrigger.value[trigger] = !popupTrigger.value[trigger]
   console.log(popupTrigger.value[trigger]);
 }
 
-const todo = ref([])
-const editableTask = ref({});
-let editingIndex = null;
+// const todo = ref([])
+// const editableTask = ref({});
+// let editingIndex = null;
 
-watch(todo, (newVal) => {
-  localStorage.setItem('todo', JSON.stringify(newVal))
-}, {
-  deep: true
-})
+// watch(todo, (newVal) => {
+//   localStorage.setItem('todo', JSON.stringify(newVal))
+// }, {
+//   deep: true
+// })
 
-onMounted(() => {
-  todo.value = JSON.parse(localStorage.getItem('todo')) || []
-  console.log(todo.value);
-})
+// onMounted(() => {
+//   todo.value = JSON.parse(localStorage.getItem('todo')) || []
+//   console.log(todo.value);
+// })
 
-const updateTask = (index) => {
-  editingIndex = index
-  editableTask.value = { ...todo.value[index] }
-  TogglePopup('editButtonTrigger')
-  console.log(editableTask.value);
-}
+// const updateTask = (index) => {
+//   editingIndex = index
+//   editableTask.value = { ...todo.value[index] }
+//   TogglePopup('editButtonTrigger')
+//   console.log(editableTask.value);
+// }
 
 const bully = ref('')
 
-const isChecked = ((index) =>{
+const isChecked = ((index:number) =>{
   todo.value[index].status
   
 })
+
+const searchQuery = ref('');
+
+// const filteredResults = computed(() => {
+//   if (!searchQuery.value) {
+//     return todo.value
+//   } else{
+//     return todo.value.filter(item => 
+//       item.content.toLowerCase().includes(searchQuery.value.toLowerCase())
+//     )
+//   }
+// })
+
+const searchItems = () => {};
+
+const edit = ref('')
 
 </script>
 
@@ -52,7 +101,7 @@ const isChecked = ((index) =>{
     <div class="hero">
       <h2>TODO APP</h2>
       <div class="search">
-        <input type="text" class="search">
+        <input type="text" placeholder="search" class="search custom-input" v-model="searchQuery" >
         <div @click="TogglePopup('addButtonTrigger')" class="custom-button">+</div>
       </div>
 
@@ -62,24 +111,21 @@ const isChecked = ((index) =>{
 
       <!-- Edit Todo modal -->
       <EditTask v-if="popupTrigger.editButtonTrigger" :togglePopup="() => TogglePopup('editButtonTrigger')"
-        :value="todo" :task="editableTask" :editIndex="editingIndex" />
+        :value="todo" :task="editableTask" :editIndex="editingIndex" :con="edit" />
 
       <!-- Delete Todo modal -->
       <DeleteTask v-if="popupTrigger.deleteButtonTrigger" :togglePopup="() => TogglePopup('deleteButtonTrigger')"
         :value="todo" :ace="bully" />
 
 
-      <div v-for="(task, index) in todo" :key="index" class="items">
-
-        <input type="checkbox" v-model="todo[index].status" />
-
-        <label for="name" :class="{strike: todo[index].status}">{{ task.content }}</label>
+      <div v-for="(task, index) in filteredTasks(searchQuery)" :key="index" class="items">        
+          <input type="checkbox" v-model="todo[index].status" />
+          <label for="name" :class="{strike: todo[index].status}">{{ task.content }}</label>
         <div class="but">
-          <div class="custom-button" @click="updateTask(index)">edit</div>
-          <!-- <button @click="updateTask(index)">edit</button> -->
+          <div class="custom-button" :class="{hide: todo[index].status}" @click="updateTask(index), edit = task.content" >edit</div>
            <div class="custom-button" @click="TogglePopup('deleteButtonTrigger'), bully = index">X </div>
-          <!-- <button @click="TogglePopup('deleteButtonTrigger'), bully = index">x</button> -->
         </div>
+        
       </div>
     </div>
   </div>
@@ -159,6 +205,19 @@ body {
   justify-content: space-between
 }
 
+.search input{
+  border: none;
+  padding: 0.8em;
+  width: 80%;
+  border-radius: 1.5em;
+  
+}
+
+.custom-input:focus {
+  border-color: transparent; /* Change border color on focus */
+  /* box-shadow: 0 0 8px rgba(76, 175, 80, 0.5); */
+}
+
 .custom-button {
   display: inline-block;
   background-color: #28a745;
@@ -168,8 +227,9 @@ body {
   padding: 0.5rem 0.5rem;
   cursor: pointer;
   text-align: center;
-  
-  
+}
+.hide{
+  visibility: hidden;
 }
 
 .custom-button:hover {
